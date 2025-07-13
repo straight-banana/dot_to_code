@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LCD Character Builder</title>
+</head>
+<body>
+
+<h3>LCD Dot Grid</h3>
+<table id="lcdGrid"></table>
+
+<h3>Pattern Code</h3>
+<pre id="patternOutput"></pre>
+
+<script>
+const rows = 8;
+const cols = 5;
+const table = document.getElementById('lcdGrid');
+const output = document.getElementById('patternOutput');
+
+// Create grid
+for (let r = 0; r < rows; r++) {
+  const row = table.insertRow();
+  for (let c = 0; c < cols; c++) {
+    const cell = row.insertCell();
+    cell.style.width = "20px";
+    cell.style.height = "20px";
+    cell.style.border = "1px solid #000";
+    cell.style.backgroundColor = "#90ee90";
+    cell.addEventListener('click', () => {
+      if (cell.style.backgroundColor === "black") {
+        cell.style.backgroundColor = "#90ee90";
+      } else {
+        cell.style.backgroundColor = "black";
+      }
+      updatePattern();
+    });
+  }
+}
+
+function updatePattern() {
+  let pattern = [];
+  for (let r = 0; r < rows; r++) {
+    let bin = '';
+    for (let c = 0; c < cols; c++) {
+      const cell = table.rows[r].cells[c];
+      bin += (cell.style.backgroundColor === "black") ? '1' : '0';
+    }
+    pattern.push('0b' + bin + ',');
+  }
+  output.textContent = pattern.join('\n');
+}
+</script>
+
+</body>
+</html>
