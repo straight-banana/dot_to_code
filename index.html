@@ -2,169 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>LCD Builder Grid</title>
+  <title>Select Display Type</title>
   <style>
     body {
       font-family: sans-serif;
-      text-align: center;
-      background: #f5f5f5;
-      padding: 10px;
-    }
-    label {
-      margin: 0 5px;
-    }
-    button {
-      margin: 5px;
-      padding: 5px 10px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .grid-row {
       display: flex;
       justify-content: center;
-      gap: 8px; /* reduced spacing between character blocks */
-      margin-bottom: 10px;
-    }
-    .char-block {
-      background: white;
-      padding: 6px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-      display: flex;
-      flex-direction: column;
       align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f4f4f4;
     }
-    .char-label {
-      font-weight: bold;
-      font-size: 12px;
-      margin-bottom: 4px;
+    .container {
+      text-align: center;
     }
-    table {
-      border-collapse: collapse;
-      margin-bottom: 4px;
+    h1 {
+      margin-bottom: 30px;
     }
-    td {
-      width: 16px;
-      height: 16px;
-      border: 1px solid #000;
-      background-color: #90ee90;
+    .btn {
+      display: block;
+      margin: 15px auto;
+      padding: 12px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      transition: background-color 0.3s;
+      width: 200px;
     }
-    .code-box {
-      font-family: monospace;
-      background: #eee;
-      padding: 4px;
-      border-radius: 3px;
-      font-size: 12px;
-      white-space: pre;
-      margin-bottom: 4px;
+    .btn:hover {
+      background-color: #388e3c;
     }
   </style>
 </head>
 <body>
-
-<h2 style="margin-bottom: 10px;">LCD Builder Grid 💡</h2>
-<label>Width: <input type="number" id="cols" value="5" min="1" style="width: 50px;"></label>
-<label>Height: <input type="number" id="rows" value="3" min="1" style="width: 50px;"></label>
-<button onclick="generateGrid()">Create Grid</button>
-
-<audio id="vineBoom">
-  <source src="vineboom.mp3" type="audio/mpeg">
-</audio>
-
-<div id="lcdContainer"></div>
-
-<script>
-const container = document.getElementById("lcdContainer");
-const boom = document.getElementById("vineBoom");
-
-function playBoom() {
-  boom.currentTime = 0;
-  boom.play();
-}
-
-function generateGrid() {
-  container.innerHTML = '';
-
-  const cols = parseInt(document.getElementById("cols").value);
-  const rows = parseInt(document.getElementById("rows").value);
-
-  let index = 0;
-
-  for (let r = 0; r < rows; r++) {
-    const rowDiv = document.createElement("div");
-    rowDiv.className = "grid-row";
-
-    for (let c = 0; c < cols; c++) {
-      const charDiv = document.createElement("div");
-      charDiv.className = "char-block";
-
-      const label = document.createElement("div");
-      label.className = "char-label";
-      label.textContent = `Row: ${r + 1}, Column: ${c + 1}`;
-
-      const table = document.createElement("table");
-      table.dataset.row = r;
-      table.dataset.col = c;
-
-      for (let i = 0; i < 8; i++) {
-        const tr = document.createElement("tr");
-        for (let j = 0; j < 5; j++) {
-          const td = document.createElement("td");
-          td.addEventListener("click", () => {
-            td.style.backgroundColor = (td.style.backgroundColor === "black") ? "#90ee90" : "black";
-            playBoom();
-            updateCode(codeBox, table);
-          });
-          tr.appendChild(td);
-        }
-        table.appendChild(tr);
-      }
-
-      const codeBox = document.createElement("div");
-      codeBox.className = "code-box";
-      updateCode(codeBox, table);
-
-      const copyBtn = document.createElement("button");
-      copyBtn.textContent = "Copy";
-      copyBtn.style.fontSize = "12px";
-      copyBtn.onclick = () => {
-        navigator.clipboard.writeText(codeBox.textContent).then(() => {
-          copyBtn.textContent = "Copied!";
-          setTimeout(() => copyBtn.textContent = "Copy", 1000);
-        });
-      };
-
-      charDiv.appendChild(label);
-      charDiv.appendChild(table);
-      charDiv.appendChild(codeBox);
-      charDiv.appendChild(copyBtn);
-      rowDiv.appendChild(charDiv);
-
-      index++;
-    }
-
-    container.appendChild(rowDiv);
-  }
-}
-
-function updateCode(codeBox, table) {
-  let codeLines = [];
-  for (let r = 0; r < 8; r++) {
-    let bin = '';
-    for (let c = 0; c < 5; c++) {
-      const cell = table.rows[r].cells[c];
-      bin += (cell.style.backgroundColor === "black") ? '1' : '0';
-    }
-    codeLines.push('0b' + bin + ',');
-  }
-  codeBox.textContent = codeLines.join('\n');
-}
-
-// Initial grid on load
-generateGrid();
-</script>
-
+  <div class="container">
+    <h1>Select Display Type</h1>
+    <button class="btn" onclick="location.href='lcd.html'">LCD Grid Editor</button>
+    <button class="btn" onclick="location.href='oled.html'">OLED Bitmap Editor</button>
+  </div>
 </body>
 </html>
