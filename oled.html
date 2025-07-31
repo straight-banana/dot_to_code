@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OLED Bitmap Editor</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .controls {
+      margin-bottom: 10px;
+    }
+    .grid {
+      display: grid;
+      margin: 20px 0;
+      gap: 1px;
+    }
+    .pixel {
+      width: 8px;
+      height: 8px;
+      background: #eee;
+      border: 1px solid #ccc;
+    }
+    .pixel.on {
+      background: #000;
+    }
+    textarea {
+      width: 90vw;
+      height: 150px;
+    }
+  </style>
+</head>
+<body>
+  <h2>OLED Bitmap Code Generator</h2>
+
+  <div class="controls">
+    Width: <input type="number" id="width" value="16" min="8" max="128">
+    Height: <input type="number" id="height" value="8" min="8" max="64">
+    <button onclick="createGrid()">Create Grid</button>
+  </div>
+
+  <div id="grid" class="grid"></div>
+
+  <textarea id="output" readonly></textarea>
+  <button onclick="copyOutput()">Copy Code</button>
+
+  <audio id="vineBoom">
+    <source src="vineboom.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    let gridContainer = document.getElementById("grid");
+    let outputBox = document.getElementById("output");
+    let vineBoom = document.getElementById("vineBoom");
+    let isDrawing = false;
+    let drawMode = null; // true = turning on, false = turning off
+
+    function createGrid() {
+      const width = parseInt(document.getElementById("width").value);
+      const height = parseInt(document.getElementById("height").value);
+
+      gridContainer.innerHTML = "";
+      gridContainer.style.gridTemplateColumns = `repeat(${width}, 1fr)`;
+
+      for (let i = 0; i < width * height; i++) {
+        const div = document.createElement("div");
+        div.classList.add("pixel");
+        div.dataset.index = i;
+
+        div.addEventListener("mousedown", (e) => {
+          isDrawing = true;
+          drawMode = !div.classList.contains("on");
+          togglePixel(div, drawMode);
+        });
+
+        div.addEventListener("mouseover", () => {
+          if (isDrawing) togglePixel(div, drawMode);
+        });
+
+        div.addEventListener("mouseup", () => {
+          isDrawing = false;
+        });
+
+        gridContainer.appendChild(div);
+      }
+
+      document.body.addEventListener("mouseup", () => {
+        isDrawing = false;
+      });
+    }
+
+    function togglePixel(div, state) {
+      if (state) div.classList.add("on");
+      else div.classList.remove("on");
+      vineBoom.currentTime = 0;
+      vineBoom.play();
+      generateCode();
+    }
+
+    function generateCode() {
+      const width = parseInt(document.getElementById("width").value);
+      const height = parseInt(document.getElementById("height").value);
+      const pixels = [...document.querySelectorAll(".pixel")];
+      const byteRows = [];
+
+      for (let x = 0; x < width; x++) {
+        let columnBytes = [];
+        for (let yByte = 0; yByte < height / 8; yByte++) {
+          let byte = 0;
+          for (let bit = 0; bit < 8; bit++) {
+            const y = yByte * 8 + bit;
+            const index = y * width + x;
+            if (pixels[index]?.classList.contains("on")) {
+              byte |= (1 << bit);
+            }
+          }
+          columnBytes.push(byte);
+        }
+        byteRows.push(...columnBytes);
+      }
+
+      const hexArray = byteRows.map(b => `0x${b.toString(16).padStart(2, "0")}`);
+      const output = `const uint8_t my_bitmap[] PROGMEM = {\n  ${hexArray.join(", ")}\n};`;
+      outputBox.value = output;
+    }
+
+    function copyOutput() {
+      outputBox.select();
+      document.execCommand("copy");
+    }
+
+    createGrid(); // default load
+  </script>
+</body>
+</html>
